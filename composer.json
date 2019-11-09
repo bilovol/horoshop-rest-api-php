@@ -1,0 +1,24 @@
+{
+  "name": "horoshop/rest-api",
+  "description": "Horoshop REST API client library",
+  "keywords": [
+    "horoshop",
+    "rest",
+    "api"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": " Evgeniy Bilovol",
+      "email": "zheshikbilivol@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Horoshop\\RestApi\\": "src/"
+    }
+  }
+}
