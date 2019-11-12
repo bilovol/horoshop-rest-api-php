@@ -50,6 +50,11 @@ class ApiClient implements ApiInterface
     private $refreshedToken = 0;
 
     /**
+     * @var boolean
+     */
+    private $isApiOff = false;
+
+    /**
      * ApiClient constructor.
      * @param string $domain
      * @param string $login
@@ -59,16 +64,24 @@ class ApiClient implements ApiInterface
      */
     public function __construct(string $domain, string $login, string $password, TokenStorageInterface $tokenStorage)
     {
+        if (!extension_loaded('curl')) {
+            throw new Exception('cURL extension must be installed to use this library');
+        }
+
         if (empty($domain) || empty($login) || empty($password)) {
             throw new Exception('Empty params!');
         }
 
-        $this->apiUrl = 'http://' . $domain . '/api';
+        $this->apiUrl = $domain . '/api';
         $this->login = $login;
         $this->password = $password;
         $this->tokenStorage = $tokenStorage ?? new FileStorage();
         $this->hashName = md5($domain . ':' . $login . ':' . $password);
         $this->token = $this->tokenStorage->get($this->hashName);
+
+        if ($this->isApiOff) {
+            throw new Exception('Api is unavailable. Check your api support!');
+        }
 
         if (empty($this->token) && !$this->getToken()) {
             throw new Exception('Could not connect to api');
@@ -152,6 +165,9 @@ class ApiClient implements ApiInterface
         $requestResult = $this->sendRequest('auth', 'POST', $data, false);
 
         if ($requestResult->http_code !== 200) {
+            if ($requestResult->http_code === 404) {
+                $this->isApiOff = true;
+            }
             return false;
         }
 
