@@ -12,7 +12,7 @@ interface ApiInterface
      * @param int $id
      * @return array|null
      */
-    public function getOrderById(int $id): ?array;
+    public function getOrderById(int $id): ?object;
 
     /**
      * @param array $ids
@@ -26,7 +26,23 @@ interface ApiInterface
      * ]
      * @return array|null
      */
-    public function listOrders(array $ids, array $data = []): ?array ;
+    public function listOrders(array $ids, array $data = []): ?array;
+
+    /**
+     * @param array $expr
+     * @param int $limit
+     * @param int|null $offset
+     * @param array $includedParams
+     * @param array $excludedParams
+     * @return array|null
+     */
+    public function listProducts(array $expr = [], int $limit = 20, int $offset = null, array $includedParams = [], array $excludedParams = []): ?array;
+
+    /**
+     * @param string $article
+     * @return object|null
+     */
+    public function getProductByArticle(string $article): ?object;
 
     /**
      * @param string $event

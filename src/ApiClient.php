@@ -182,10 +182,12 @@ class ApiClient implements ApiInterface
      * @param int $id
      * @return array|null
      */
-    public function getOrderById(int $id): ?array
+    public function getOrderById(int $id): ?object
     {
         $ids = [$id];
-        return $this->listOrders($ids);
+        $order = $this->listOrders($ids);
+
+        return is_array($order) ? array_shift($order) : $order;
     }
 
     /**
@@ -200,7 +202,7 @@ class ApiClient implements ApiInterface
      * ]
      * @return array|null
      */
-    public function listOrders(array $ids, array $data = []): ?array
+    public function listOrders(array $ids = [], array $data = []): ?array
     {
         $data['ids'] = $ids;
 
@@ -212,10 +214,63 @@ class ApiClient implements ApiInterface
 
         if (!empty($requestResult->data->response->orders)) {
             $orders = $requestResult->data->response->orders;
-            return reset($orders);
+            return $orders;
         }
 
         return null;
+    }
+
+    /**
+     * Get products
+     * @param array $expr
+     * @param int $limit
+     * @param int|null $offset
+     * @param array $includedParams
+     * @param array $excludedParams
+     * @return mixed|null
+     */
+    public function listProducts(array $expr = [], int $limit = 20, int $offset = null, array $includedParams = [], array $excludedParams = []): ?array
+    {
+        $data['expr'] = $expr;
+        $data['limit'] = $limit;
+
+        if (!empty($offset)) {
+            $data['offset'] = $offset;
+        }
+
+        if (count($includedParams) > 0) {
+            $data['includedParams'] = implode(', ', $includedParams);
+        }
+
+        if (count($excludedParams) > 0) {
+            $data['excludedParams'] = implode(', ', $excludedParams);
+        }
+
+        $requestResult = $this->sendRequest('catalog/export', 'GET', $data);
+
+        if ($requestResult->http_code !== 200) {
+            return null;
+        }
+
+        if (!empty($requestResult->data->response->products)) {
+            $products = $requestResult->data->response->products;
+            return $products;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get product by article
+     * @param string $article
+     * @return array|null
+     */
+    public function getProductByArticle(string $article): ?object
+    {
+        $expr['article'] = $article;
+        $product = $this->listCatalog($expr, 1);
+
+        return is_array($product) ? array_shift($product) : $product;
     }
 
     /**
