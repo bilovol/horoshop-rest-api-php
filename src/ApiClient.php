@@ -288,11 +288,11 @@ class ApiClient implements ApiInterface
 
         $requestResult = $this->sendRequest('hooks/subscribe/', 'POST', $data);
 
-        if ($requestResult->http_code !== 201) {
+        if ($requestResult->http_code > 202) {
             return null;
         }
 
-        return $requestResult->data->id;
+        return $requestResult->data->id ?? null;
     }
 
     /**
