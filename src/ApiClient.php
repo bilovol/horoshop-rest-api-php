@@ -55,6 +55,7 @@ class ApiClient implements ApiInterface
     private $isApiOff = false;
 
     public $headerCode;
+    public $responseBody;
 
     /**
      * ApiClient constructor.
@@ -101,6 +102,8 @@ class ApiClient implements ApiInterface
     private function sendRequest($path, $method = 'GET', $data = array(), $useToken = true): stdClass
     {
         $this->headerCode = null;
+        $this->responseBody = null;
+
         $url = $this->apiUrl . '/' . $path;
 
         if ($useToken && !empty($this->token)) {
@@ -139,6 +142,7 @@ class ApiClient implements ApiInterface
         $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         $this->headerCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $responseBody = substr($response, $header_size);
+        $this->responseBody = $responseBody;
 
         curl_close($curl);
 
