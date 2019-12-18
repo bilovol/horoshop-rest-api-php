@@ -285,6 +285,7 @@ class ApiClient implements ApiInterface
      * @param string $event
      * @param string $handlerUri
      * @return int|null
+     * @throws Exception
      */
     public function bind(string $event, string $handlerUri): ?int
     {
@@ -293,7 +294,22 @@ class ApiClient implements ApiInterface
 
         $requestResult = $this->sendRequest('hooks/subscribe/', 'POST', $data);
 
-        if ($requestResult->http_code > 202) {
+        /**
+         * При успешной подписке на вебхук сервер вернёт заголовок HTTP/1.1 201 Created
+         * что означает что вебхук успешно создан,
+         * при других статусах ответа сервера следует считать что подписка не удалась
+         */
+        if ($requestResult->http_code !== 201) {
+
+            if ($this->refreshedToken === 1) {
+                throw new Exception($this->responseBody);
+            }
+
+            if ($this->getToken()) {
+                $this->refreshedToken = 1;
+                $this->bind($event, $handlerUri);
+            }
+
             return null;
         }
 
