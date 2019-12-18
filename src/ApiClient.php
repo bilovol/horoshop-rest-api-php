@@ -54,6 +54,8 @@ class ApiClient implements ApiInterface
      */
     private $isApiOff = false;
 
+    public $headerCode;
+
     /**
      * ApiClient constructor.
      * @param string $domain
@@ -98,6 +100,7 @@ class ApiClient implements ApiInterface
      */
     private function sendRequest($path, $method = 'GET', $data = array(), $useToken = true): stdClass
     {
+        $this->headerCode = null;
         $url = $this->apiUrl . '/' . $path;
 
         if ($useToken && !empty($this->token)) {
@@ -134,19 +137,19 @@ class ApiClient implements ApiInterface
 
         $response = curl_exec($curl);
         $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-        $headerCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $this->headerCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $responseBody = substr($response, $header_size);
 
         curl_close($curl);
 
-        if ($headerCode === 401 && $this->refreshedToken === 0) {
+        if ($this->headerCode === 401 && $this->refreshedToken === 0) {
             ++$this->refreshedToken;
             $this->getToken();
             $retval = $this->sendRequest($path, $method, $data);
         } else {
             $retval = new stdClass();
             $retval->data = json_decode($responseBody);
-            $retval->http_code = $headerCode;
+            $retval->http_code = $this->headerCode;
         }
 
         return $retval;
