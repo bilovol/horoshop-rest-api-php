@@ -142,9 +142,10 @@ class ApiClient implements ApiInterface
         $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         $this->headerCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $responseBody = substr($response, $header_size);
-        $this->responseBody = $responseBody;
 
         curl_close($curl);
+
+        $this->responseBody = $responseBody;
 
         if ($this->headerCode === 401 && $this->refreshedToken === 0) {
             ++$this->refreshedToken;
