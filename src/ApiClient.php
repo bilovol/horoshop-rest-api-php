@@ -307,7 +307,8 @@ class ApiClient implements ApiInterface
 
             if ($this->getToken()) {
                 $this->refreshedToken = 1;
-                $this->bind($event, $handlerUri);
+
+                return $this->bind($event, $handlerUri);
             }
 
             return null;
