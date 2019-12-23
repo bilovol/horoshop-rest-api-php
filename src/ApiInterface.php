@@ -36,7 +36,7 @@ interface ApiInterface
      * @param array $excludedParams
      * @return array|null
      */
-    public function listProducts(array $expr = [], int $limit = 20, int $offset = null, array $includedParams = [], array $excludedParams = []): ?array;
+    public function listCatalog(array $expr = [], int $limit = 20, int $offset = null, array $includedParams = [], array $excludedParams = []): ?array;
 
     /**
      * @param string $article
